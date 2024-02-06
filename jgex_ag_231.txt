@@ -290,7 +290,7 @@ examples/complete2/004/complete_014_7_Book_00EE_07_E057-42.gex
 a b c = triangle a b c; d = midpoint d a c; e = midpoint e b a; f = midpoint f c b; g = on_line g a b; h = on_pline h d f g, on_line h a b ? cong h a g e
 examples/complete2/005/complete_005_Other_ndgs_03.gex
 b a c = triangle b a c; d = foot d b a c; e = foot e c a b; f = midpoint f c b; g = foot g f d e ? cong g e g d
-examples/complete2/005/complete_000_rebuilt example_9point.gex
+examples/complete2/005/complete_000_rebuilt_example_9point.gex
 a b c = triangle a b c; d = foot d a b c; e = midpoint e b a; f = midpoint f c b; g = midpoint g a c; o = circumcenter o e f g ? cyclic d g e f
 examples/complete2/005/complete_013_7_Book_00EE_11_E081-2.gex
 a b = segment a b; d = on_circle d a b; c = on_circle c a b, on_circle c b d; e = foot e d b c; f = intersection_lc f e a d; g = on_line g d e, on_circle g e f ? cong f c g d
