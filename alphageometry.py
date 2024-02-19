@@ -381,6 +381,26 @@ def try_translate_constrained_to_construct(string: str, g: gh.Graph) -> str:
   if string[-1] != ';':
     return 'ERROR: must end with ;'
 
+  # sometimes the LM may return ill-formed result with multiple colons.
+  # example:
+  #
+  # napoleon2
+  # a1 a2 a3 = triangle; c3 = s_angle a1 a2 c3 30, s_angle a2 a1 c3 150; c1 = s_angle a2 a3 c1 30, s_angle a3 a2 c1 150; c2 = s_angle a3 a1 c2 30, s_angle a1 a3 c2 150 ? cong c1 c2 c1 c3
+  #
+  # in the process, 
+  # I0210 17:58:01.513668 140016515833856 alphageometry.py:550] Decoding from {S} a : ; b : ; c : ; d : ^ a d a b 5. pi / 6. 00 ^ b d b a 1. pi / 6. 01 ; e : ^ b e b c 5. pi / 6. 02 ^ c e c b 1. pi / 6. 03 ; f : ^ a f a c 1. pi / 6. 04 ^ c f c a 5. pi / 6. 05 ? D e f e d {F1} x00 g : C a b g 06 D a g b g 07 ; x00 h : C c b h 08 D c h b h 09 ; x00
+  # I0210 18:01:38.182158 140016515833856 alphageometry.py:384] !! try_translate_constrained_to_construct: string=i : C a c i 10 D a i c i 11 ? V d f {F1} x00 j : D g j h j 12 D h j i j 13 ;
+
+  #XXX
+  # str_parts = string.split(' : ')
+  # if len(str_parts) != 2:
+  #   return f'ERROR: string has multiple colons: |{string}|'
+  iqm = string.find(' ? ')
+  if iqm>=0:
+    strFixed = string[:iqm] + ';'
+    logging.info('Bad LM output: %s. Changed to %s', string, strFixed)
+    string = strFixed
+
   head, prem_str = string.split(' : ')
   point = head.strip()
 
