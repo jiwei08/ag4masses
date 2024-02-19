@@ -381,6 +381,8 @@ def try_translate_constrained_to_construct(string: str, g: gh.Graph) -> str:
   if string[-1] != ';':
     return 'ERROR: must end with ;'
 
+  logging.info('!! try_translate_constrained_to_construct: string=%s', string)
+
   # sometimes the LM may return ill-formed result with multiple colons.
   # example:
   #
@@ -600,6 +602,10 @@ def run_alphageometry(
         if run_ddar(g_new, p_new, out_file):
           logging.info('Solved.')
           return True
+
+
+        #XXX
+        logging.info('string=|%s| lm_out=|%s|', string, lm_out)
 
         # Add the candidate to the beam queue.
         new_queue.add(

@@ -109,6 +109,7 @@ def solve(
         break
 
     if not derives:  # officially saturated.
+      logging.info("derives empty, breaking")
       break
 
     # Now we resort to algebra derivations.
@@ -126,6 +127,7 @@ def solve(
     all_added += added
 
     if not added:  # Nothing left. saturated.
+      logging.info("Nothing added, breaking")
       break
 
   return g, level_times, status, branches, all_added
