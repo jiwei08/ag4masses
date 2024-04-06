@@ -524,7 +524,7 @@ def bqsearch_init():
 
 def bqsearch(ags) -> tuple[int, bool, list]: # (iwkr, solved, [ (node, score) ]
     (iwkr, beam_queue, out_file) = ags
-    logging.info('Worker %d: started, beam_queue size=%d', iwkr, len(beam_queue))
+    logging.info('Worker %d: called, beam_queue size=%d', iwkr, len(beam_queue))
     ret = []
     for prev_score, (g, string, pstring) in beam_queue:
       logging.info('Worker %d: Decoding from %s', iwkr, string)
@@ -559,9 +559,13 @@ def bqsearch(ags) -> tuple[int, bool, list]: # (iwkr, solved, [ (node, score) ]
 
         # This is the new proof state graph representation:
         g_new, _ = gh.Graph.build_problem(p_new, DEFINITIONS)
-        if run_ddar(g_new, p_new, out_file):
-          logging.info('Worker %d: Solved.', iwkr)
-          return (iwkr, True, None)
+
+        try:
+          if run_ddar(g_new, p_new, out_file):
+            logging.info('Worker %d: Solved.', iwkr)
+            return (iwkr, True, None)
+        except Exception as e:
+            logging.info(f'Error in run_ddar: {e}')
 
         #XXX
         logging.info('Worker %d: string=|%s| lm_out=|%s|', iwkr, string, lm_out)
