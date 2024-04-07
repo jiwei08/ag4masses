@@ -18,6 +18,7 @@
 Please refer to README.md for detailed instructions.
 """
 
+import time
 import traceback
 
 from absl import app
@@ -515,76 +516,76 @@ class BeamQueue:
   def __len__(self) -> int:
     return len(self.queue)
 
-
 #XXX
 def bqsearch_init():
     global model
     logging.info('Worker initializing. PID=%d', os.getpid())
     model = get_lm(_CKPT_PATH.value, _VOCAB_PATH.value)
 
-def bqsearch(ags) -> tuple[int, bool, list]: # (iwkr, solved, [ (node, score) ]
-    (iwkr, beam_queue, out_file) = ags
-    logging.info('Worker %d: called, beam_queue size=%d', iwkr, len(beam_queue))
+def bqsearch(i_nd, srch_inputs, out_file) -> tuple[int, bool, list]: # ( iNode, solved, [ (node, score) ] )
+    pid = os.getpid()
+    logging.info(f'Worker PID={pid} called for beam search node {i_nd}')
+
+    prev_score, (g, string, pstring) = srch_inputs
+    logging.info(f'Worker PID={pid}: Decoding from {string}')
+    outputs = model.beam_decode(string, eos_tokens=[';'])
+
+    # translate lm output to the constructive language.
+    # so that we can update the graph representing proof states:
+    translations = [
+        try_translate_constrained_to_construct(o, g)
+        for o in outputs['seqs_str']
+    ]
+
+    # couple the lm outputs with its translations
+    candidates = zip(outputs['seqs_str'], translations, outputs['scores'])
+
+    # bring the highest scoring candidate first
+    candidates = reversed(list(candidates))
+
     ret = []
-    for prev_score, (g, string, pstring) in beam_queue:
-      logging.info('Worker %d: Decoding from %s', iwkr, string)
-      outputs = model.beam_decode(string, eos_tokens=[';'])
+    for lm_out, translation, score in candidates:
+      logging.info(f'Worker PID={pid}: LM output (score={score}): "{lm_out}"')
+      logging.info(f'Worker PID={pid}: Translation: "{translation}"')
 
-      # translate lm output to the constructive language.
-      # so that we can update the graph representing proof states:
-      translations = [
-          try_translate_constrained_to_construct(o, g)
-          for o in outputs['seqs_str']
-      ]
+      if translation.startswith('ERROR:'):
+        # the construction is invalid.
+        continue
 
-      # couple the lm outputs with its translations
-      candidates = zip(outputs['seqs_str'], translations, outputs['scores'])
+      # Update the constructive statement of the problem with the aux point:
+      candidate_pstring = insert_aux_to_premise(pstring, translation)
 
-      # bring the highest scoring candidate first
-      candidates = reversed(list(candidates))
+      #XXX
+      logging.info(f'Worker PID={pid}: string=|{string}| lm_out=|{lm_out}|')
+      logging.info(f'Worker PID={pid}: Solving: "{candidate_pstring}"')
+      p_new = pr.Problem.from_txt(candidate_pstring)
 
-      for lm_out, translation, score in candidates:
-        logging.info('Worker %d: LM output (score=%f): "%s"', iwkr, score, lm_out)
-        logging.info('Worker %d: Translation: "%s"\n', iwkr, translation)
+      # This is the new proof state graph representation:
+      g_new, _ = gh.Graph.build_problem(p_new, DEFINITIONS)
 
-        if translation.startswith('ERROR:'):
-          # the construction is invalid.
-          continue
+      try:
+        if run_ddar(g_new, p_new, out_file):
+          logging.info('Worker PID={pid}: Solved.')
+          return (i_nd, True, None)
+      except Exception as e:
+          logging.info(f'Worker PID={pid}: Error in run_ddar: {e}')
 
-        # Update the constructive statement of the problem with the aux point:
-        candidate_pstring = insert_aux_to_premise(pstring, translation)
+      # Add the candidate to the beam queue.
+      ret.append( [
+          # The string for the new node is old_string + lm output +
+          # the special token asking for a new auxiliary point ' x00':
+          # node
+          (g_new, string + ' ' + lm_out + ' x00', candidate_pstring),
+          # the score of each node is sum of score of all nodes
+          # on the path to itself. For beam search, there is no need to
+          # normalize according to path length because all nodes in beam
+          # is of the same path length.
+          # val
+          prev_score + score ]
+      )
 
-        logging.info('Worker %d: Solving: "%s"', iwkr, candidate_pstring)
-        p_new = pr.Problem.from_txt(candidate_pstring)
-
-        # This is the new proof state graph representation:
-        g_new, _ = gh.Graph.build_problem(p_new, DEFINITIONS)
-
-        try:
-          if run_ddar(g_new, p_new, out_file):
-            logging.info('Worker %d: Solved.', iwkr)
-            return (iwkr, True, None)
-        except Exception as e:
-            logging.info(f'Error in run_ddar: {e}')
-
-        #XXX
-        logging.info('Worker %d: string=|%s| lm_out=|%s|', iwkr, string, lm_out)
-
-        # Add the candidate to the beam queue.
-        ret.append( [
-            # The string for the new node is old_string + lm output +
-            # the special token asking for a new auxiliary point ' x00':
-            # node
-            (g_new, string + ' ' + lm_out + ' x00', candidate_pstring),
-            # the score of each node is sum of score of all nodes
-            # on the path to itself. For beam search, there is no need to
-            # normalize according to path length because all nodes in beam
-            # is of the same path length.
-            # val
-            prev_score + score ]
-        )
-
-    return (iwkr, False, ret)
+    logging.info(f'Worker PID={pid} beam search node {i_nd}: returning')
+    return (i_nd, False, ret)
 
 def run_alphageometry(
     #XX model: lm.LanguageModelInference,
@@ -640,7 +641,11 @@ def run_alphageometry(
       node=(g, string, p.txt()), val=0.0  # value of the root node is simply 0.
   )
 
-  pool = None if _N_WORKSERS.value == 1 else multiprocessing.Pool(_N_WORKSERS.value, bqsearch_init)
+  pool = None
+  if _N_WORKSERS.value == 1:
+    bqsearch_init()
+  else:
+    pool = multiprocessing.Pool(_N_WORKSERS.value, bqsearch_init)
 
   for depth in range(search_depth):
     logging.info(
@@ -649,54 +654,46 @@ def run_alphageometry(
     for _, (_, string, _) in beam_queue:
       logging.info(string)
 
-    n_wkrs = min(_N_WORKSERS.value, len(beam_queue))
-    srch_res = [None]*n_wkrs
-    solved = False
-
-    #?? better to always use worker even if len(beam_queue)==1? so the main process does not need to load the LM
-    if _N_WORKSERS.value==1: #XX n_wkrs==1:
-      if model is None:
-        bqsearch_init()
-      _, solved, res = bqsearch( (0, beam_queue, out_file) )
-      srch_res[0] = res
-    else:
-      max_size_chunk = math.ceil(beam_size/n_wkrs)
-      bqs_ags = [(i, BeamQueue(max_size=max_size_chunk), out_file) for i in range(n_wkrs)]
-      for ii, (val, node) in enumerate(beam_queue):
-        ichnk = ii%n_wkrs
-        bqs_ags[ichnk][1].add(node, val)
-
-      for iwkr, solved, res in pool.imap_unordered(bqsearch, bqs_ags): #chunksize=1
-          logging.info(f"Worker {iwkr} returned. Solved={solved}")
-          if solved:
-            break
-          else:
-            srch_res[iwkr] = res
-
-    if solved:
-      # Clean up resources
-      pool.terminate()
-      pool.join()
-      return True
-
     new_queue = BeamQueue(max_size=beam_size)  # to replace beam_queue.
-    # restore the original order
-    for ii in range(len(srch_res[0])): # element 0 alway has the largest size
-      for iwkr in range(n_wkrs):
-        if len(srch_res[iwkr])<=ii:
-          break
-        (node, val) = srch_res[iwkr][ii]
-        # Add the candidate to the beam queue.
-        new_queue.add(node, val)
-        # Note that the queue only maintain at most beam_size nodes
-        # so this new node might possibly be dropped depending on its value.
+    if _N_WORKSERS.value==1:
+      for i, srch_inputs in enumerate(beam_queue):
+        _, solved, res = bqsearch(i, srch_inputs, out_file)
+        if solved:
+          return True
+        for node, val in res:
+          # Add the candidate to the beam queue.
+          new_queue.add(node, val)
+          # Note that the queue only maintain at most beam_size nodes
+          # so this new node might possibly be dropped depending on its value.
+    else:      
+      jobs = [pool.apply_async(bqsearch, (i, srch_inputs, out_file)) for i, srch_inputs in enumerate(beam_queue)]
+
+      n_done = 0
+      while n_done < len(beam_queue):
+        for i, jobres in enumerate(jobs):
+          if jobres and jobres.ready():            
+            n_done += 1
+            jobs[i] = None
+            _, solved, res = jobres.get()
+            if solved:
+              # Clean up resources
+              pool.terminate()
+              pool.join()
+              return True
+            for node, val in res:
+              # Add the candidate to the beam queue.
+              new_queue.add(node, val)
+              # Note that the queue only maintain at most beam_size nodes
+              # so this new node might possibly be dropped depending on its value.            
+        time.sleep(1)  # Adjust wait time as needed
 
     # replace the old queue with new queue before the new proof search depth.
     beam_queue = new_queue
 
   # Clean up resources
-  pool.terminate()
-  pool.join()
+  if pool:
+    pool.terminate()
+    pool.join()
   return False
 
 def main(_):
