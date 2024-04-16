@@ -391,7 +391,7 @@ def try_translate_constrained_to_construct(string: str, g: gh.Graph) -> str:
   if string[-1] != ';':
     return 'ERROR: must end with ;'
 
-  logging.info('!! try_translate_constrained_to_construct: string=%s', string)
+  logging.info(f'PID={os.getpid()}: !! try_translate_constrained_to_construct: string=%s', string)
 
   # sometimes the LM may return ill-formed result with multiple colons.
   # example:
@@ -410,10 +410,16 @@ def try_translate_constrained_to_construct(string: str, g: gh.Graph) -> str:
   mch = re.match('(.*?)( \? | \. \{)', string)
   if mch :
     strFixed = mch.group(1) + ';'
-    logging.info('Bad LM output: %s. Changed to %s', string, strFixed)
+    logging.info(f'ID={os.getpid()}: Bad LM output: {string}. Changed to {strFixed}')
     string = strFixed
 
-  head, prem_str = string.split(' : ')
+  # sometimes the constraint in string is empty:
+  # 0407 17:11:35.470240 126383800963072 alphageometry.py:394] !! try_translate_constrained_to_construct: string=j : ;
+  hdprem = string.split(' : ')
+  if len(hdprem) !=2 or hdprem[1].strip()==';' :
+    logging.info(f'ID={os.getpid()}: Bad LM output: {string}. ERROR')
+    return f'ERROR: Bad LM output: {string}'
+  head, prem_str = hdprem
   point = head.strip()
 
   if len(point) != 1 or point == ' ':

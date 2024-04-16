@@ -1,43 +1,52 @@
-# Copyright 2023 DeepMind Technologies Limited
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
-
 # !/bin/bash
 set -e
 set -x
 
-virtualenv -p python3 .
-source ./bin/activate
+# Directory where output files go
+AGTESTDIR=$HOME/agtest
+# Directory containing AlphaGeometry source files
+AGDIR=$HOME/alphageometry
+# Directory containing ag_ckpt_vocab and meliad_lib
+AGLIB=$HOME/pyvenv/ag
+export PYTHONPATH=$PYTHONPATH:$AGDIR:$AGLIB
 
-pip install --require-hashes -r requirements.txt
+# stdout, solution is written here
+OUTFILE=$AGTESTDIR/ag.out
+# stderr, a lot of information, error message, log etc.
+ERRFILE=$AGTESTDIR/ag.err
 
-gdown --folder https://bit.ly/alphageometry
-DATA=ag_ckpt_vocab
+# stderr is written to both ERRFILF and console
+exec > >(tee $ERRFILE) 2>&1
 
-MELIAD_PATH=meliad_lib/meliad
-mkdir -p $MELIAD_PATH
-git clone https://github.com/google-research/meliad $MELIAD_PATH
+# BATCH_SIZE: number of outputs for each LM query
+# BEAM_SIZE: size of the breadth-first search queue
+# DEPTH: search depth (number of auxilary points to add)
+# NWORKERS: number of parallel run worker processes. Rule of thumb: on a 128G machine with 16 logical CPUs,
+#   use NWORKERS=8, BATCH_SIZE=24.
+# 
+# Memory usage is affected by BATCH_SIZE, NWORKER and complexity of the problem.
+# Larger NWORKER and BATCH_SIZE tends to cause out of memory issue
+
+BATCH_SIZE=24
+BEAM_SIZE=64
+DEPTH=8
+NWORKERS=8
+
+#The results in Google's paper can be obtained by setting BATCH_SIZE=32, BEAM_SIZE=512, DEPTH=16
+
+PROB_FILE=$AGTESTDIR/myexamples.txt
+PROB=gaolian100-98
+# alphageometry | ddar
+MODEL=alphageometry #ddar #
+
+DATA=$AGLIB/ag_ckpt_vocab
+MELIAD_PATH=$AGLIB/meliad_lib/meliad
 export PYTHONPATH=$PYTHONPATH:$MELIAD_PATH
 
 DDAR_ARGS=(
-  --defs_file=$(pwd)/defs.txt \
-  --rules_file=$(pwd)/rules.txt \
+  --defs_file=$AGDIR/defs.txt \
+  --rules_file=$AGDIR/rules.txt \
 );
-
-BATCH_SIZE=2
-BEAM_SIZE=2
-DEPTH=2
 
 SEARCH_ARGS=(
   --beam_size=$BEAM_SIZE
@@ -47,7 +56,7 @@ SEARCH_ARGS=(
 LM_ARGS=(
   --ckpt_path=$DATA \
   --vocab_path=$DATA/geometry.757.model \
-  --gin_search_paths=$MELIAD_PATH/transformer/configs \
+  --gin_search_paths=$MELIAD_PATH/transformer/configs,$AGDIR \
   --gin_file=base_htrans.gin \
   --gin_file=size/medium_150M.gin \
   --gin_file=options/positions_t5.gin \
@@ -60,13 +69,15 @@ LM_ARGS=(
   --gin_param=Trainer.restore_state_variables=False
 );
 
-echo $PYTHONPATH
+true "=========================================="
 
 python -m alphageometry \
 --alsologtostderr \
---problems_file=$(pwd)/examples.txt \
---problem_name=orthocenter \
---mode=alphageometry \
+--problems_file=$PROB_FILE \
+--problem_name=$PROB \
+--mode=$MODEL \
 "${DDAR_ARGS[@]}" \
 "${SEARCH_ARGS[@]}" \
-"${LM_ARGS[@]}"
+"${LM_ARGS[@]}" \
+--out_file=$OUTFILE \
+--n_workers=$NWORKERS 2>&1
