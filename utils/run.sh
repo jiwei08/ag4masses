@@ -17,7 +17,7 @@ OUTFILE=$TESTDIR/ag.out
 # stderr, a lot of information, error message, log etc.
 ERRFILE=$TESTDIR/ag.err
 
-# stderr is written to both ERRFILF and console
+# stdout and stderr are written to both ERRFILF and console
 exec > >(tee $ERRFILE) 2>&1
 
 # BATCH_SIZE: number of outputs for each LM query

@@ -13,9 +13,23 @@
 # limitations under the License.
 # ==============================================================================
 
-DATA=ag_ckpt_vocab
-MELIAD_PATH=meliad_lib/meliad
-export PYTHONPATH=$PYTHONPATH:$MELIAD_PATH
+# Directory where output files go
+TESTDIR=$HOME/ag4mtest
+# Directory containing AG4Masses source files
+AG4MDIR=$HOME/ag4masses
+# Directory containing external libraries including ag_ckpt_vocab and meliad
+AGLIB=$HOME/aglib
+
+AGDIR=$AG4MDIR/alphageometry
+DATA=$AGLIB/ag_ckpt_vocab
+MELIAD_PATH=$AGLIB/meliad
+export PYTHONPATH=$PYTHONPATH:$AGDIR:$AGLIB:$MELIAD_PATH
+
+ERRFILE=$TESTDIR/test.log
+# stdout and stderr are written to both ERRFILF and console
+exec > >(tee $ERRFILE) 2>&1
+
+cd $AGDIR
 
 python problem_test.py
 python geometry_test.py
