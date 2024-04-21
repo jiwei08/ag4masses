@@ -33,9 +33,9 @@ The naming convention of the log files is: for problems that can be solved by dd
 
 Below are a few examples:
 
-### The 5-Circles Problem (outputs/solved/5circles-ddar-ok.log):
+### The 5-Circles Problem (`outputs/solved/5circles-ddar-ok.log`):
 
-A, B, C, D, E are vertices of a pentagon. F, G, H, I, J are intersections of their diagonals. 5 circumcircles of triangles AJF, BFG etc. intersect at 5 points P, Q, R, S, T, in addition to F, G, H, I, J. Prove that F, G, H, I, J are concyclic.
+`A, B, C, D, E` are vertices of a pentagon. `F, G, H, I, J` are intersections of their diagonals. 5 circumcircles of triangles `AJF, BFG` *etc.* intersect at 5 points `P, Q, R, S, T`, in addition to `F, G, H, I, J`. Prove that `P, Q, R, S, T` are concyclic.
 
 <center>
 <img alt="5circles-manual" width="800px" src="outputs/solved/5circles-manual.jpg">
@@ -43,53 +43,53 @@ A, B, C, D, E are vertices of a pentagon. F, G, H, I, J are intersections of the
 
 It turns out no auxiliary point is needed for this problem, it can be solved by DD+AR, taking 6 minutes with 1 CPU in use. This problem is not easy for humans given there are many points on the diagram and it's not easy to see all the relationships between them. This shows the power of the DD+AR engine.
 
-### The 15-Degree-Line-in-Square Problem (outputs/solved/square_angle15-ag-ok.log):
+### The 15-Degree-Line-in-Square Problem (`outputs/solved/square_angle15-ag-ok.log`):
 
-A, B, C, D is a square. E is inside the square and CDE = ECD = 15-degree. Prove that ABE is an equilateral triangle.
+`A, B, C, D` is a square. `E` is inside the square and `CDE = ECD = 15-degree`. Prove that `ABE` is an equilateral triangle.
 
 <center>
 <img alt="square_angle15.jpg" width="800px" src="outputs/solved/square_angle15.jpg">
 </center>
 
-This needs an auxiliary point and AlphaGeometry found it very quickly (13 minutes, about 1 CPU in use, no GPU), on the 3rd try (and the first valid diagram).
+This needs an auxiliary point and AlphaGeometry found it very quickly (13 minutes, about 1 CPU in use, no GPU), on the 3rd try (and the first valid figure).
 
-I remember I first encountered this problem in the middle school, a few months after learning geometry. An obvious solution was an indirect one: construct an equilateral triangle ABE with AB as one side and E inside the square, show that CDE = ECD = 15-degree, then argue that there is only one point that can satisfy this condition. But I and several other classmates were not satisfied with the indirect solution and wanted to find a direct one. 5-6 of us spend 1-2 hours before one student solved it. In that exercise, it took about 10 hours of intense execution by enthusiastic and lightly trained young human brains. Even on very basic hardware, AlphaGeometry is already better than a novice human problem solver.
+I remember I first encountered this problem in the middle school, a few months after learning geometry. An obvious solution was an indirect one: construct an equilateral triangle `ABE` with `AB` as one side and `E` inside the square, show that `CDE = ECD = 15-degree`, then argue that there is only one point that can satisfy this condition. But I and several other classmates were not satisfied with the indirect solution and wanted to find a direct one. 5-6 of us spend 1-2 hours before one student solved it. In that exercise, it took about 10 hours of intense execution by enthusiastic and lightly trained young human brains. Even on very basic hardware, AlphaGeometry is already better than a novice human problem solver.
 
-### The Napoleon Problem (outputs/solved/napoleon-ddar-ok.log, outputs/solved/napoleon2-mp-4-solutions-ag-ok.log)
+### The Napoleon Problem (`outputs/solved/napoleon-ddar-ok.log`, `outputs/solved/napoleon2-mp-4-solutions-ag-ok.log`)
 
-For any triangle ABC, construct equilateral triangles with one of the sides as a side (the 3 equilaterals must be in the same direction relative to ABC, either all "going out" or all "going in"). The centers of the 3 equilateral triangles - D, E, F - form an equilateral triangle.
+For any triangle `ABC`, construct equilateral triangles with one of the sides as a side (the 3 equilaterals must be in the same direction relative to `ABC`, either all "going out" or all "going in"). The centers of the 3 equilateral triangles - `D, E, F` - form an equilateral triangle.
 
-If the problem is stated this way, no additional auxiliary point is needed, it can be solved by DD+AR, see napoleon-ddar-ok.log.
+If the problem is stated this way, no additional auxiliary point is needed, it can be solved by DD+AR, see `outputs/solved/napoleon-ddar-ok.log`.
 
 <center>
 <img alt="napoleon.jpg" width="800px" src="outputs/solved/napoleon.jpg">
 </center>
 
-A more challenging version is to give points D, E, F through the conditions that angles DAB, ABD, EBC, BCE, etc. all equal 30-degree. This will need auxiliary points. In my run AlphaGeometry found 4 solutions, they require 4 auxiliary points. AlphaGeometry found the first after trying around 360 figures. See napoleon2-mp-4-solutions-ag-ok.log.
+A more challenging version is to give points `D, E, F` through the conditions that angles `DAB, ABD, EBC, BCE`, *etc.* all equal 30-degree. This will need auxiliary points. In my run AlphaGeometry found 4 solutions, they require 4 auxiliary points. AlphaGeometry found the first after trying around 360 figures. See `outputs/solved/napoleon2-mp-4-solutions-ag-ok.log`.
 
 <center>
 <img alt="napoleon2-mp-2.jpg" width="800px" src="outputs/solved/napoleon2-mp-2.jpg">
 </center>
 
-### Ceva's Theorem (outputs/unsolved/ceva-mp-16-crash.log)
+### Ceva's Theorem (`outputs/unsolved/ceva-mp-16-crash.log`)
 
-For any triangle ABC and point D, points E is the interception of AD and BC, and so on for F, G. Prove that AG/GB * BE/EC * CF/FA = 1 (a more general way to state the theorem considers sign of the segments and rhs is -1). Here we run into a limitation of AlphaGeometry: it does not support complex conclusions (goals to be proved) like the one in the Ceva's Theorem, only equality of two ratios. To work around this, I added an auxiliary point H on AC with BH // EF, and transformed the conclusion to FH/FA = GB/GA.
+For any triangle `ABC` and point `D`, points `E` is the interception of `AD` and `BC`, and so on for `F, G`. Prove that `AG/GB * BE/EC * CF/FA = 1` (a more general way to state the theorem considers sign of the segments and rhs is -1). Here we run into a limitation of AlphaGeometry: it does not support complex conclusions (goals to be proved) like the one in the Ceva's Theorem, only equality of two ratios. To work around this, I added an auxiliary point `H` on `AC` with `BH // EF`, and transformed the conclusion to `FH/FA = GB/GA`.
 
 <center>
-<img alt="ceva-manual.jpg" width="800px" src="outputs/solved/ceva-manual.jpg">
+<img alt="ceva-manual.jpg" width="800px" src="outputs/unsolved/ceva-manual.jpg">
 </center>
 
-In my test this problem was not solved by AlphaGeometry after over 10k figures, see ceva-mp-16-crash.log. The machine I used eventually ran out of memory as the figures got more complex. It's interesting to look at the auxiliary points AlphaGeometry attempted to add. To a human, observing that the problem is very general, there are very few relationships given, and the conclusion is about ratio of segments, it will be very natural to try to add parallel lines to construct similar triangles. Indeed, a typical solution only requires two auxiliary points, e.g. draw a line over A parallel to BC, extend CD and BD to meet this line. But only about 10% of AlphaGeometry's auxiliary points for this problem involve parallel lines. For this and other problems I tried, I find AlphaGeometry to prefer adding midpoints and mirror points around another point or a line. AlphaGeometry also seems to perform worse for problems like this one whose premises are simple with few relationships given.
+In my test this problem was not solved by AlphaGeometry after over 10k figures, see `outputs/unsolved/ceva-mp-16-crash.log`. The machine I used eventually ran out of memory as the figures got more complex. It's interesting to look at the auxiliary points AlphaGeometry attempted to add. To a human, observing that the problem is very general, there are very few relationships given, and the conclusion is about ratio of segments, it will be very natural to try to add parallel lines to construct similar triangles. Indeed, a typical solution only requires two auxiliary points, *e.g.* draw a line over `A` parallel to `BC`, extend `CD` and `BD` to meet this line. But only about 10% of AlphaGeometry's auxiliary points for this problem involve parallel lines. For this and other problems I tried, I find AlphaGeometry to prefer adding midpoints and mirror points around another point or a line. AlphaGeometry also seems to perform worse for problems like this one whose premises are simple with few relationships given.
 
 # Plan for Future Developments
 
 ## Improve the Language Model that Adds Auxiliary Points
 
-The DD+AR deduction engine can solve virtually any problem in a few minutes with household hardware. The performance of the system all hinges on the LM's ability to add auxiliary points effectively. As Google's paper mentions, the current model is trained on 100 million randomly generated problems, with nearly 10 million involving auxiliary points. Yet as we observed in the [Test Results](#test-results) section above, the performance still has vast room to improve. Humans typically cannot try more than ~100 figures, but top human problem solvers perform better than what the current version of AlphaGeometry can do with thousands of times more attempts.
+The DD+AR deduction engine can solve virtually any problem in a few minutes with household hardware. The performance of the system all hinges on the LM's ability to add auxiliary points effectively. As Google's paper mentions, the current model is trained on 100 million randomly generated problems, with nearly 10 million involving auxiliary points. Yet as we observed in the [Test Results](#additional-problems-and-test-results) section above, the performance still has vast room to improve. Humans typically cannot try more than ~100 figures, but top human problem solvers perform better than what the current version of AlphaGeometry can do with thousands of times more attempts.
 
 I believe this requires tuning the LM using data based on **human designed** problems. Although many strategic search type of problems have been solved very successfully by approaches based on first principles without requiring human inputs, such as Google Deepmind's AlphaZero for many challenging board and video games, math and scientific research in general and plane geometry in particular are different. Unlike the board and video games that have simple and clearly defined goals, other than a few areas such as proof of Riemann's Hypothesis, math and science research have no such simple and clearly defined final goals. The active research areas are defined by collective activities and interests of researchers in the fields. Even major breakthroughs such as calculus, theory of relativity and quantum mechanics were still pretty close to the frontier of human knowledge at their times. Looking at plane geometry in particular, it is not an active area of continued mathematical discovery any more, the interest in it is main for education, recreation and as test cases for AI research. So the performance of a problem solving system is measured by its ability to solve human designed problems. A system like the current version of AlphaGeometry trained on randomly generated problems may be strong in solving random problems, but not particularly strong in solving the kind of problems commonly of interest to humans, which are mostly **designed by humans**(instead of arising naturally in some way).
 
-As Google's paper mentions, the challenge in training a model to solve plane geometry problem is the scarcity of data, that was one reason the authors used randomly generated problems. However, with the advent of the AlphaGeometry system, we can use AlphaGeometry itself as a platform to collect data. There are already some quite large plane geometry problem sets available in electronic form, such as [FormalGeo7k](https://github.com/FormalGeo/Datasets/tree/main/projects/formalgeo7k) with 7k problems. What's missing is for problems that require auxiliary points, knowing the auxiliary points that lead to the solution of the problem. This can be obtained either manually (if one knows the solution) or by successful solution by the latest version of AlphaGeometry or one of its improved versions such as AG4Masses. To estimate the number of data points needed, we again use human as reference. A top human problem solver is probably trained on less than 1k problems. If we can collect 10k problems with auxiliary points, I believe they can significantly improve the performance of the LM. The specific tasks include:
+As Google's paper mentions, the challenge in training a model to solve plane geometry problem is the scarcity of data, that was one reason the authors used randomly generated problems. However, with the advent of the AlphaGeometry system, we can use AlphaGeometry itself as a platform to collect data. There are already some quite large plane geometry problem sets available in electronic form, such as [FormalGeo](https://github.com/FormalGeo/Datasets) with 7k problems. What's missing is for problems that require auxiliary points, knowing the auxiliary points that lead to the solution of the problem. This can be obtained either manually (if one knows the solution) or by successful solution by the latest version of AlphaGeometry or one of its improved versions such as AG4Masses. To estimate the number of data points needed, we again use human as reference. A top human problem solver is probably trained on less than 1k problems. If we can collect 10k problems with auxiliary points, I believe they can significantly improve the performance of the LM. The specific tasks include:
 
 * Define a format to record problems and auxiliary points, enhance the AG4Masses code so when a problem is successfully solved, record the problem and auxiliary points in the standard format. Automatically submit the results to the AG4Masses project, with the user's consent. [Effort Level: low]
 * Investigate ways to tune the LM. Google has not published the code and details for the training and tuning of the LM. The [Meliad](https://github.com/google-research/meliad) project AlphaGeometry uses does not have much documentation (other than several related published papers), so this may be challenging. [Effort Level: high]
@@ -267,7 +267,7 @@ Update env vars `TESTDIR, AG4MDIR, AGLIB` to match the locations you have chosen
 
 Update env vars `PROB_FILE, PROB` to point to the problem you want to solve. There are several problem sets provided:
 
-* `$AG4MDIR/data/ag4m_problems.txt` : Additional problems provided by the AG4Masses project, including some classic problems described in the [Test Results](#test-results) section above, such as the 5-circles problem, Napoleon problem, Butterfly problem, Ceva Theorem, *etc.*
+* `$AG4MDIR/data/ag4m_problems.txt` : Additional problems provided by the AG4Masses project, including some classic problems described in the [Test Results](#additional-problems-and-test-results) section above, such as the 5-circles problem, Napoleon problem, Butterfly problem, Ceva Theorem, *etc.*
 * `$AG4MDIR/alphageometry/examples.txt` : from AlphaGeometry, a few test examples
 * `$AG4MDIR/alphageometry/imo_ag_30.txt` : from AlphaGeometry, 30 IMO problems as described in the Google paper
 * `$AG4MDIR/alphageometry/jgex_ag_231.txt` : from AlphaGeometry, 231 problems originally from the [Java-Geometry-Expert](https://github.com/yezheng1981/Java-Geometry-Expert) project as described in the Google paper
