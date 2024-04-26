@@ -10,6 +10,8 @@ Since the initial open-sourcing in January 2024, as of April 2024, there has bee
 
 The goal of this project is to **improve the performance of AlphaGeometry by a factor of ~100** to enable it to **solve IMO level (hence vast majority of) plane geometry problems with household hardware (as of 2024, 4-8 logical CPU, 16-32G RAM, no high-end GPU) within a day**.
 
+If you are interested, you are welcome to join the community, contribute your ideas and code, or join the discussion on the [Discussions](https://github.com/tpgh24/ag4masses/discussions) page.
+
 # What's Provided in AG4Masses (as of April 2024)
 
 ## Code Improvements over AlphaGeometry
