@@ -12,6 +12,29 @@ The goal of this project is to **improve the performance of AlphaGeometry by a f
 
 If you are interested, you are welcome to join the community, contribute your ideas and code, or join the discussion on the [Discussions](https://github.com/tpgh24/ag4masses/discussions) page.
 
+# Table of Contents
+
+* [What's Provided in AG4Masses](#whats-provided-in-ag4masses-as-of-april-2024)
+  * [Code Improvements over AlphaGeometry](#code-improvements-over-alphageometry)
+  * [Additional Problems and Test Results](#additional-problems-and-test-results)
+* [Plan for Future Developments](#plan-for-future-developments)
+  * [Improve the Language Model that Adds Auxiliary Points](#improve-the-language-model-that-adds-auxiliary-points)
+  * [Improve Problem Solving Strategy and Algorithm](#improve-problem-solving-strategy-and-algorithm)
+  * [Enhance the Range of Geometry Problems Handled by the System](#enhance-the-range-of-geometry-problems-handled-by-the-system)
+  * [Improve the User Friendliness and Robustness of the System](#improve-the-user-friendliness-and-robustness-of-the-system)
+* [Some Tips and Experiences about the AlphaGeometry System](#some-tips-and-experiences-about-the-alphageometry-system)
+  * [The Problem Definition Language](#the-problem-definition-language)
+  * [Some Tips](#some-tips)
+* [Setup](#setup)
+  * [System and Python version](#system-and-python-version)
+  * [Choose file locations](#choose-file-locations)
+  * [Download source and data files](#download-source-and-data-files)
+  * [Install necessary Linux packages](#install-necessary-linux-packages)
+  * [Install Python module dependencies](#install-python-module-dependencies)
+  * [Run tests](#run-tests)
+  * [Run AG4Masses](#run-ag4masses)
+* [Directory Layout](#directory-layout)
+
 # What's Provided in AG4Masses (as of April 2024)
 
 ## Code Improvements over AlphaGeometry
