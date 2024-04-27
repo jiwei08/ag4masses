@@ -634,7 +634,7 @@ def run_alphageometry(
   
   # ?? when pickling graph for some problems, the default recursion limit 1000 is not enough,
   #    got 'maximum recursion depth exceeded while pickling an object' error
-  sys.setrecursionlimit(3000)
+  sys.setrecursionlimit(10000)
 
   # beam search for the proof
   # each node in the search tree is a 3-tuple:
