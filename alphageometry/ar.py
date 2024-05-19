@@ -426,7 +426,7 @@ class Table:
       self, a: str, b: str, m: float, n: float, dep: pr.Dependency
   ) -> None:
     # a/b = m/n
-    if not self.add_expr([(a, m), (b, -n)]):
+    if not self.add_expr([(a, n), (b, -m)]):
       return []
     self.register2(a, b, m, n, dep)
 
